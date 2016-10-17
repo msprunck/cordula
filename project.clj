@@ -16,5 +16,5 @@
   :main cordula.server
   :profiles {:dev {:repl-options {:init-ns user}
                    :source-paths ["src" "dev-src"]
-                   :dependencies [[cheshire "5.5.0"]
+                   :dependencies [[cheshire "5.6.3"]
                                   [ring/ring-mock "0.3.0"]]}})

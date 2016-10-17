@@ -1,5 +1,6 @@
 (ns cordula.http
   (:require [clojure.tools.logging :as log]
+            [compojure.api.middleware :refer [wrap-components]]
             [com.stuartsierra.component :as component]
             [cordula.handler :refer [app]]
             [org.httpkit.server :as httpkit]))
@@ -12,7 +13,9 @@
                  host
                  port)
       (assoc this :http-kit (httpkit/run-server
-                             #'app
+                             (wrap-components
+                              #'app
+                              (select-keys this [:request-repository]))
                              {:port port
                               :ip host}))))
   (stop [this]
