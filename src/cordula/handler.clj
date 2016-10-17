@@ -1,5 +1,6 @@
 (ns cordula.handler
   (:require [compojure.api.sweet :refer :all]
+            [com.stuartsierra.component :as component]
             [cordula.repository :refer :all]
             [ring.util.http-response :refer :all]
             [ring.util.http-status :as http-status]
@@ -13,7 +14,11 @@
 (s/defschema NewRequest (dissoc Request :id))
 (s/defschema UpdatedRequest NewRequest)
 
-(def app
+(defprotocol DynamicHandler
+  (reset [this]))
+
+(defn app
+  [requests]
   (api
     {:swagger
      {:ui "/"
@@ -22,7 +27,7 @@
                     :description "HTTP request adapter"}
              :tags [{:name "api", :description "some apis"}]}}}
     (context "/request/" []
-             :components [request-repository]
+             :components [request-repository handler]
              (resource
               {:tags ["request"]
                :get {:summary "get requests"
@@ -38,11 +43,11 @@
                                  (let [{:keys [id] :as request}
                                        (create-request request-repository
                                                        body)]
+                                   (reset handler)
                                    (created (path-for ::request {:id id}) request)))}}))
     (context "/request/:id" []
              :path-params [id :- s/Str]
-             :components [request-repository]
-
+             :components [request-repository handler]
              (resource
               {:tags ["request"]
                :get {:x-name ::request
@@ -59,9 +64,30 @@
                                 (if-let [request (update-request request-repository
                                                                  id
                                                                  body)]
-                                  (ok request)
+                                  (do (reset handler)
+                                      (ok request))
                                   (not-found)))}
                :delete {:summary "deletes a request"
                         :handler (fn [_]
                                    (delete-request request-repository id)
-                                   (no-content))}}))))
+                                   (reset handler)
+                                   (no-content))}}))
+    (println "config" requests)
+    #_(compojure.api.routes/create "/matthieu/sprunck" :get nil nil (fn [_]
+                                                                    (println "hello")
+                                                                      (ok {})))))
+
+(defrecord Handler []
+  component/Lifecycle
+  (start [this]
+    (let [repo (:request-repository this)]
+      (assoc this :handler-fn (app (find-all repo {})))))
+  (stop [this]
+    (dissoc this :handler-fn))
+  DynamicHandler
+  (reset [this]
+    (.start this)))
+
+(defn new-handler
+  []
+  (->Handler))

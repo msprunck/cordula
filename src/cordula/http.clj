@@ -8,14 +8,16 @@
 (defrecord HttpKit []
   component/Lifecycle
   (start [this]
-    (let [{:keys [port host]} (:conf this)]
+    (let [{:keys [port host]} (:conf this)
+          handler (:handler this)]
       (log/infof "Server started at http://%s:%s"
                  host
                  port)
       (assoc this :http-kit (httpkit/run-server
                              (wrap-components
-                              #'app
-                              (select-keys this [:request-repository]))
+                              (fn [request]
+                                ((:handler-fn handler) request))
+                              (select-keys this [:request-repository :handler]))
                              {:port port
                               :ip host}))))
   (stop [this]
