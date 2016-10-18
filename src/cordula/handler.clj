@@ -1,5 +1,6 @@
 (ns cordula.handler
   (:require [compojure.api.sweet :refer :all]
+            [compojure.route :as route]
             [com.stuartsierra.component :as component]
             [cordula.repository :refer :all]
             [ring.util.http-response :refer :all]
@@ -72,21 +73,24 @@
                                    (delete-request request-repository id)
                                    (reset handler)
                                    (no-content))}}))
-    (println "config" requests)
-    #_(compojure.api.routes/create "/matthieu/sprunck" :get nil nil (fn [_]
-                                                                    (println "hello")
-                                                                      (ok {})))))
+    (undocumented
+     (route/not-found (ok {:not "found"})))))
 
 (defrecord Handler []
   component/Lifecycle
   (start [this]
-    (let [repo (:request-repository this)]
-      (assoc this :handler-fn (app (find-all repo {})))))
+    (let [handler-fn (atom (app (find-all
+                                 (:request-repository this)
+                                 {})))]
+      (assoc this :handler-fn handler-fn)))
   (stop [this]
     (dissoc this :handler-fn))
   DynamicHandler
   (reset [this]
-    (.start this)))
+    (when-let [handler-fn (:handler-fn this)]
+      (reset! handler-fn (app (find-all
+                               (:request-repository this)
+                               {}))))))
 
 (defn new-handler
   []
