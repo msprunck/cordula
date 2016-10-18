@@ -1,16 +1,29 @@
 (ns cordula.handler
-  (:require [compojure.api.sweet :refer :all]
-            [compojure.route :as route]
+  (:require [clojure.tools.logging :as log]
+            [compojure.api.routes :as routes]
+            [compojure.api.sweet :refer :all]
             [com.stuartsierra.component :as component]
+            [cordula.proxy :as proxy]
             [cordula.repository :refer :all]
             [ring.util.http-response :refer :all]
             [ring.util.http-status :as http-status]
             [schema.core :as s]))
 
+(s/defschema InRequest
+  {:path s/Str
+   :method (s/enum :get :post)
+   (s/optional-key :path-params) [s/Str]})
+
+(s/defschema OutRequest
+  {:path s/Str
+   :method (s/enum :get :post)})
+
 (s/defschema Request
   {:id s/Str
    :name s/Str
-   (s/optional-key :description) s/Str})
+   (s/optional-key :description) s/Str
+   :in InRequest
+   :out OutRequest})
 
 (s/defschema NewRequest (dissoc Request :id))
 (s/defschema UpdatedRequest NewRequest)
@@ -18,8 +31,18 @@
 (defprotocol DynamicHandler
   (reset [this]))
 
+(defn dynamic-route
+  [{:keys [in out id name description] :as request}]
+  (log/debugf "Build dynamic route %s" request)
+  (case (:method in)
+    :get (GET (:path in) []
+              (proxy/proxy-handler (:path out) (:method out)))
+    :post (POST (:path in) []
+                (proxy/proxy-handler (:path out) (:method out)))))
+
 (defn app
   [requests]
+  (log/info "Build routes: " requests)
   (api
     {:swagger
      {:ui "/"
@@ -73,8 +96,10 @@
                                    (delete-request request-repository id)
                                    (reset handler)
                                    (no-content))}}))
-    (undocumented
-     (route/not-found (ok {:not "found"})))))
+    (->> requests
+         (map dynamic-route)
+         (apply routes))
+    (undocumented (not-found (ok {:not "found"})))))
 
 (defrecord Handler []
   component/Lifecycle
