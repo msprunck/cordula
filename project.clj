@@ -11,6 +11,7 @@
                  [log4j/log4j "1.2.17"]
                  [com.stuartsierra/component "0.3.1"]
                  [metosin/compojure-api "1.1.8"]
+                 [clj-http "3.1.0"]
                  [http-kit "2.2.0"]
                  [reloaded.repl "0.2.3"]]
   :main cordula.server
