@@ -4,4 +4,3 @@
 (set-init! #(do (require 'cordula.system)
                 ((resolve 'cordula.system/new-system) {:port 8080
                                                        :host "0.0.0.0"})))
-

@@ -9,15 +9,13 @@
   component/Lifecycle
   (start [this]
     (let [{:keys [port host]} (:conf this)
-          handler (:handler this)]
+          {:keys [handler-fn]} (:handler this)]
       (log/infof "Server started at http://%s:%s"
                  host
                  port)
       (assoc this :http-kit (httpkit/run-server
                              (wrap-components
-                              (fn [request]
-                                (let [handler-fn @(:handler-fn handler)]
-                                  (handler-fn request)))
+                              handler-fn
                               (select-keys this [:request-repository :handler]))
                              {:port port
                               :ip host}))))

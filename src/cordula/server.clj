@@ -3,7 +3,7 @@
   (:require [clojure.tools.cli :refer [parse-opts]]
             [clojure.tools.logging :as log]
             [cordula.system :refer [new-system]]
-            [reloaded.repl :refer [go set-init!]]))
+            [reloaded.repl :refer [go set-init! stop]]))
 
 ;; Uncaught exceptions handling
 (Thread/setDefaultUncaughtExceptionHandler
@@ -43,5 +43,5 @@
 
 (defn -main [& args]
   (set-init! #(new-system (parse-args args)))
+  (.addShutdownHook (Runtime/getRuntime) (Thread. stop))
   (go))
-

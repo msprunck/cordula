@@ -10,7 +10,7 @@
   (create-request [this new-query])
   (update-request [this id query])
   (delete-request [this id])
-  (find-all [this filter]))
+  (find-all [this properties]))
 
 (defn satisfy-properties?
   [query properties]
