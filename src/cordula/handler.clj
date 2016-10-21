@@ -1,51 +1,33 @@
 (ns cordula.handler
   (:require [clojure.tools.logging :as log]
+            [compojure.api.exception :as ex]
             [compojure.api.routes :as routes]
             [compojure.api.sweet :refer :all]
             [com.stuartsierra.component :as component]
             [cordula.proxy :as proxy]
             [cordula.repository :refer :all]
+            [cordula.schema :refer :all]
             [ring.util.http-response :refer :all]
             [ring.util.http-status :as http-status]
             [schema.core :as s]))
-
-(s/defschema InRequest
-  {:path s/Str
-   :method (s/enum :get :post)
-   (s/optional-key :path-params) [s/Str]})
-
-(s/defschema OutRequest
-  {:path s/Str
-   :method (s/enum :get :post)})
-
-(s/defschema Request
-  {:id s/Str
-   :name s/Str
-   (s/optional-key :description) s/Str
-   :in InRequest
-   :out OutRequest})
-
-(s/defschema NewRequest (dissoc Request :id))
-(s/defschema UpdatedRequest NewRequest)
 
 (defprotocol DynamicHandler
   (reset [this]))
 
 (defn dynamic-route
   [{:keys [in out id name description] :as request}]
-  (log/debugf "Build dynamic route %s" request)
-  (case (:method in)
-    :get (GET (:path in) []
-              (proxy/proxy-handler (:path out) (:method out)))
-    :post (POST (:path in) []
-                (proxy/proxy-handler (:path out) (:method out)))))
+  (let [url (str "/" id (:path in))]
+    (log/debugf "Build dynamic route %s (%s)" request url)
+    (case (:method in)
+      "get" (GET url [] (proxy/proxy-handler request))
+      "post" (POST url [] (proxy/proxy-handler request)))))
 
 (defn app
   [requests]
-  (log/info "Build routes: " requests)
+  (log/debug "Build routes: " requests)
   (api
-    {:swagger
-     {:ui "/"
+   {:swagger
+    {:ui "/"
       :spec "/swagger.json"
       :data {:info {:title "Cordula"
                     :description "HTTP request adapter"}
@@ -68,7 +50,8 @@
                                        (create-request request-repository
                                                        body)]
                                    (reset handler)
-                                   (created (path-for ::request {:id id}) request)))}}))
+                                   (created (path-for ::request {:id id})
+                                            request)))}}))
     (context "/request/:id" []
              :path-params [id :- s/Str]
              :components [request-repository handler]
@@ -78,16 +61,18 @@
                      :summary "gets a request"
                      :responses {http-status/ok {:schema Request}}
                      :handler (fn [_]
-                                (if-let [request (get-request request-repository id)]
+                                (if-let [request (get-request request-repository
+                                                              id)]
                                   (ok request)
                                   (not-found)))}
                :put {:summary "updates a request"
                      :parameters {:body-params UpdatedRequest}
                      :responses {http-status/ok {:schema Request}}
                      :handler (fn [{body :body-params}]
-                                (if-let [request (update-request request-repository
-                                                                 id
-                                                                 body)]
+                                (if-let [request
+                                         (update-request request-repository
+                                                         id
+                                                         body)]
                                   (do (reset handler)
                                       (ok request))
                                   (not-found)))}
@@ -104,18 +89,23 @@
 (defrecord Handler []
   component/Lifecycle
   (start [this]
-    (let [handler-fn (atom (app (find-all
-                                 (:request-repository this)
-                                 {})))]
-      (assoc this :handler-fn handler-fn)))
+    (let [app-handler (atom (app (find-all
+                                  (:request-repository this)
+                                  {})))]
+      (assoc this
+             :handler-fn
+             (fn [request]
+               (@app-handler request))
+             :app-handler
+             app-handler)))
   (stop [this]
     (dissoc this :handler-fn))
   DynamicHandler
   (reset [this]
-    (when-let [handler-fn (:handler-fn this)]
-      (reset! handler-fn (app (find-all
-                               (:request-repository this)
-                               {}))))))
+    (when-let [app-handler (:app-handler this)]
+      (reset! app-handler (app (find-all
+                                (:request-repository this)
+                                {}))))))
 
 (defn new-handler
   []
