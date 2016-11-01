@@ -41,7 +41,8 @@
   \"Hello Matthieu!\"
   "
   [s values]
-  (string/replace s #"~\{([^~\{]*)\}" #(format-param->value % values)))
+  (when s
+    (string/replace s #"~\{([^~\{]*)\}" #(format-param->value % values))))
 
 (s/defn with-headers
   "Merge request headers with those configured."
