@@ -2,6 +2,26 @@
 
 HTTP request adapter
 
++-------------+
+|  Webhook    |
++-------------+
+   |      ^
+   v      |
+   HTTP POST
+   |      ^
+   v      |
++-------------+
+|  Cordula    |
++-------------+
+   |      ^
+   v      |
+   HTTP GET
+   |      ^
+   v      |
++-------------+
+| Webservice  |
++-------------+
+
 ## Usage
 
 ### Run the application locally
