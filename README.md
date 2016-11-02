@@ -1,7 +1,7 @@
 # Cordula
 
 HTTP request adapter
-
+<pre>
 +-------------+
 |  Webhook    |
 +-------------+
@@ -21,7 +21,7 @@ HTTP request adapter
 +-------------+
 | Webservice  |
 +-------------+
-
+</pre>
 ## Usage
 
 ### Run the application locally
