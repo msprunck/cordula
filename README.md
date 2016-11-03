@@ -1,4 +1,4 @@
-# Cordula
+# Cordula [![Build Status](https://travis-ci.org/msprunck/cordula.svg?branch=master)](https://travis-ci.org/msprunck/cordula)
 
 HTTP request adapter
 <pre>
