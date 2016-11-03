@@ -15,29 +15,35 @@
                        :method "get"}
                   :proxy {:uri "https://api.com/test/"
                           :method "post"}}
-            {:keys [body]} (th/mock-request app :post "/request/" conf)
+            {:keys [body]} (th/http-request app {:method :post
+                                                 :path "/request/"
+                                                 :body conf})
             req-id (:id body)
             req-path (str "/request/" req-id)]
         (is (= conf
                (dissoc body :id))
             "POST a new request configuration")
         (is (= body
-               (-> (th/mock-request app :get "/request/")
+               (-> (th/http-request app {:method :get
+                                         :path "/request/"})
                    :body
                    first))
             "GET all requests")
         (is (= body
                (:body
-                (th/mock-request app :get req-path)))
+                (th/http-request app {:method :get
+                                      :path req-path})))
             "GET the created request")
         (let [updated-conf (assoc conf :name "request-modified")
-              {:keys [body]} (th/mock-request app
-                                              :put
-                                              req-path
-                                              updated-conf)]
+              {:keys [body]} (th/http-request app {:method :put
+                                                   :path req-path
+                                                   :body updated-conf})]
           (is (= (assoc updated-conf :id req-id)
-                 (:body (th/mock-request app :get req-path)))
+                 (:body (th/http-request app {:method :get
+                                              :path req-path})))
               "UPDATE request configuration"))
-        (th/mock-request app :delete req-path)
+        (th/http-request app {:method :delete
+                              :path req-path})
         (is (= 404
-               (:status (th/mock-request app :get req-path))))))))
+               (:status (th/http-request app {:method :get
+                                              :path req-path}))))))))

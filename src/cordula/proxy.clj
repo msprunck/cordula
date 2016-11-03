@@ -42,7 +42,7 @@
   "
   [s values]
   (when s
-    (string/replace s #"~\{([^~\{]*)\}" #(format-param->value % values))))
+    (string/replace s #"~\{([^~\{\}]*)\}" #(format-param->value % values))))
 
 (s/defn with-headers
   "Merge request headers with those configured."
@@ -50,6 +50,7 @@
   (let [req-headers (dissoc (:headers req) "host" "content-length")
         conf-headers (fmap apply-template
                            (get-in conf [:proxy :headers] {}))]
+    (log/debug "Req headers:" (:headers req) " Conf headers:" conf-headers)
     (into params {:headers (into req-headers conf-headers)})))
 
 (s/defn with-body
@@ -57,8 +58,9 @@
   [params req conf :- Request apply-template]
   (let [conf-body (apply-template
                    (get-in conf [:proxy :body]))
-        req-body (when (:body req) (slurp (:body req)))
+        req-body (:body req)
         body (or conf-body req-body)]
+    (log/debug "Configured request body:" conf-body)
     (if body
       (into params {:body body})
       params)))
@@ -80,7 +82,9 @@
 (defn- extract-vars
   [conf req]
   (stringify-keys
-   {:params (:params req)}))
+   {:request {:headers (:headers req)
+              :body (:body-params req)
+              :params (:params req)}}))
 
 (s/defn http-options
   "Build HTTP options from a request and a request configuration."
@@ -102,7 +106,7 @@
     (log/debugf "Proxying request to %s to remote url %s"
                 (:uri req)
                 (get-in conf [:proxy :uri]))
-    (log/debug "HTTP options" (http-options req conf))
+    (log/debug "HTTP options" (http-options req conf) req)
     (select-keys (client/request
                   (http-options req conf))
                  [:status :headers :body])))
