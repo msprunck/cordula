@@ -2,7 +2,7 @@
   (:require [schema.core :as s]))
 
 (s/defschema MapStr
-  {s/Str s/Str})
+  {(s/cond-pre s/Keyword s/Str) s/Str})
 
 (s/defschema Params
   {:merge-values s/Bool
@@ -21,7 +21,8 @@
    (s/optional-key :body) s/Str})
 
 (s/defschema Response
-  {:body s/Str})
+  {:body s/Str
+   :headers MapStr})
 
 (s/defschema Request
   {:id s/Str

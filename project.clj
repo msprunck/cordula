@@ -11,7 +11,7 @@
                  [org.slf4j/slf4j-log4j12 "1.7.21"]
                  [log4j/log4j "1.2.17"]
                  [com.stuartsierra/component "0.3.1"]
-                 [metosin/compojure-api "1.1.8"]
+                 [metosin/compojure-api "1.1.9"]
                  [prismatic/schema "1.1.3"]
                  [clj-http "3.3.0"]
                  [http-kit "2.2.0"]

@@ -20,7 +20,7 @@
     (log/debugf "Build dynamic route %s (%s)" request url)
     (case (:method in)
       "get" (GET url [] (proxy/proxy-handler request))
-      "post" (POST url [] (proxy/proxy-handler request)))))
+      "post" (POST url [] :body [body s/Any] (proxy/proxy-handler request)))))
 
 (defn app
   [requests]
