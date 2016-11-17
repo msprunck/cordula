@@ -1,0 +1,9 @@
+version: '2'
+services:
+  cordula:
+    image: msprunck/cordula:latest
+    build:
+      context: ../
+      dockerfile: docker/cordula/Dockerfile
+    ports:
+      - "3000:3000"

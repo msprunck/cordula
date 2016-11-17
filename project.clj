@@ -22,4 +22,6 @@
                    :dependencies [[cheshire "5.6.3"]
                                   [ring/ring-defaults "0.2.1"]
                                   [ring/ring-mock "0.3.0"]]}
-             :test {:resource-paths ["test/resources"]}})
+             :test {:resource-paths ["test/resources"]}
+             :uberjar {:aot :all
+                       :uberjar-name "cordula.jar"}})
