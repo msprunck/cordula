@@ -1,9 +1,25 @@
 language: clojure
-lein: lein2
-script: lein2 do clean, test
+services:
+  - docker
+lein: lein
+script: lein do clean, test, uberjar
 jdk:
-  - openjdk7
   - oraclejdk8
 cache:
   directories:
-  - $HOME/.m2
+    - "$HOME/.m2"
+deploy:
+  - provider: script
+    script: ".travis/deploy-docker.sh"
+    skip_cleanup: true
+    on:
+      branch: master
+  - provider: script
+    script: ".travis/deploy-docker.sh"
+    skip_cleanup: true
+    on:
+      tags: true
+env:
+  global:
+    - secure: Dr76diz3jlWRmlJtkJYDvmbXqInVBpjZqZWU1170sTDsuZqkoF37tQ7X0Zbg4BZmNS4kMHwVGfeQjTDorN31QNQGP5CqE5brSsGLdngEtYJvy7zoD7MN0yXus97vDUL5Tup7urkVbzixMhfBZqB+EV5T2vjOUtBQ2nWNOfVh7YNF1mYXSc0w6rxNCv1nLEC+vt60MrcmSdbzGPsT794aZecuU0JaUSFfIGBFmREYsN5qM/sOoYmLZnc2dpSwzRa5zZ+NP54R903XykqrBD8gFlG79Ssvo/skTgNE/CzgDS0mFEh/GsZ/kSKpcY9nAKRvxxMufQVtA14XCT+6rqcGJbLtB+9R/4BvZVz91SG8siKEO0BipDrEDBd6gPdxQVwIjqik3HLJB0Jh2zMIAq7MCr8bjo3Gp2alFW++PC0MoDEJKE8Ekfv8hf2Kk0AWd5OX+tg+SkSouZeaJNPhm1RvVChSDPyPOHcuYWEZMJHZMiARO0snItVio6r5h/dUCOnlwjebB36Pq8St04yZNqVesxdzsbnB3m4H5LEmLawc1WTOI3Zn5UVs1yP9Jkykd+gSIBrLXbRPgTV88jE9tl1OG06lW/HMUUq+dQ5XYyKCZRDzL1N/qqZfss6tPh2p/LjO2j7IV3cDtXqLiwGzAALVKYLEA4zp71eF9eGPJOqGD9o=
+    - secure: bXAyjjp4yioy45O2SArBr1zdM7cLtcczehk6gqtbip4LLP69ULGvAiZiNZd+omcbot9sN0MPlPeD9sL8cBSAXRuU+Q18898TNn6SS7M+v2BB1YpLsMunv+7wN/qJdq63SlOPCMjjCCwriUm1Xe/a37/mLR4QnTtyh6qnpc6ry55tiTOT/VTMGPSS3vuLPhpM1Ia7ilGZz4rrnlpccQLlqc8LrWj4NeEoguwi35sIEwrN+wDwi8e3qOBx4IfC0eH6LbpyjZOt6ueD5EkBF9qgzTBEl5h7dd5k6KTJuXeWn5SaIQx5xoNT9xF5Sq1yQTIhp9rGYPiR2ep8CDUBII7Q1jx8le7gpGU6jV1aizKEZk2A+9QiaGoTMkRjK+tQNYlcunKEeCJjv09of0geyxOpUfknJilGwBm6KN/lOv5U3nGG5G01T9mKOrURsYjlh4/4cd0mgWTgeimcHwVoYc3PE/ewZZLysok8mQTMIEs4DxGTJ+61UcDNKka2g8LOt8eT7wVi0EoeCwq6rySwCJ5rHBodHESf1pJ/xO4swrMdaeyPm+t/GYIT9qwtsJgaGghzI/6+7gTIqsOIgPMlSzUqr5PDRyeznK+JutSAY20/vSU4hRDUYoeVV5v7t9Qa8cVPTKpfMLcjyq7DeOqCOU8SXMO0760PxcuEpHpRc/s0kxo=
