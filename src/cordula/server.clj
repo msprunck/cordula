@@ -19,11 +19,13 @@
 (def cli-options
   "Command line options"
   [[nil "--help" "Show help"]
-   [nil "--host HOST"
+   [nil "--server-host HOST"
     :default "0.0.0.0"]
-   [nil "--port PORT"
+   [nil "--server-port PORT"
     :default 8080
-    :parse-fn #(Integer/parseInt %)]])
+    :parse-fn #(Integer/parseInt %)]
+   [nil "--db-uri URI"
+    :default "mongodb://admin:crdl@192.168.99.100:27017/cordula"]])
 
 (defn parse-args
   "Parses command line arguments and display help or errors if needed"

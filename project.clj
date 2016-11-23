@@ -11,12 +11,14 @@
                  [org.slf4j/slf4j-log4j12 "1.7.21"]
                  [log4j/log4j "1.2.17"]
                  [com.stuartsierra/component "0.3.1"]
+                 [cprop "0.1.9"]
                  [metosin/compojure-api "1.1.9"]
+                 [com.novemberain/monger "3.1.0"]
                  [prismatic/schema "1.1.3"]
                  [clj-http "3.3.0"]
                  [http-kit "2.2.0"]
                  [reloaded.repl "0.2.3"]]
-  :main cordula.server
+  :main ^:skip-aot cordula.server
   :profiles {:dev {:repl-options {:init-ns user}
                    :source-paths ["src" "dev-src"]
                    :dependencies [[cheshire "5.6.3"]

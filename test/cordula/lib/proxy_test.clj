@@ -1,6 +1,6 @@
-(ns cordula.proxy-test
+(ns cordula.lib.proxy-test
   (:require [cheshire.core :as cheshire]
-            [cordula.proxy :as sut]
+            [cordula.lib.proxy :as sut]
             [cordula.test-helpers :as th]
             [clojure.test :as t :refer [deftest is testing
                                         use-fixtures]]

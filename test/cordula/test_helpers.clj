@@ -5,8 +5,10 @@
              [compojure.api.middleware :refer [wrap-components wrap-exceptions
                                                api-middleware-defaults]]
              [com.stuartsierra.component :as component]
-             [cordula.handler :refer [new-handler]]
-             [cordula.repository :refer [new-request-repository]]
+             [cordula.components.conf :refer [new-configuration]]
+             [cordula.components.mongo :refer [new-mongo-db]]
+             [cordula.components.handler :refer [new-handler]]
+             [cordula.components.repository :refer [new-request-repository]]
              [cordula.system :refer [new-system]]
              [org.httpkit.server :refer [run-server]]
              [reloaded.repl :refer [go set-init! stop]]
@@ -67,7 +69,13 @@
 (defn test-system
   []
   (component/system-map
-   :request-repository (new-request-repository)
+   ;; :db-uri can be overriden by DB_URI env variable
+   :conf (new-configuration {:db-uri "mongodb://admin:crdl@192.168.99.100:27017/cordula"})
+   :db (component/using
+        (new-mongo-db)
+        [:conf])
+   :request-repository (component/using (new-request-repository)
+                                        [:conf :db])
    :handler (component/using (new-handler)
                              [:request-repository])))
 

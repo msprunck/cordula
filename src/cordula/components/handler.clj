@@ -1,11 +1,12 @@
-(ns cordula.handler
+(ns cordula.components.handler
   (:require [clojure.tools.logging :as log]
             [compojure.api.exception :as ex]
             [compojure.api.routes :as routes]
             [compojure.api.sweet :refer :all]
             [com.stuartsierra.component :as component]
-            [cordula.proxy :as proxy]
-            [cordula.repository :refer :all]
+            [cordula.components.repository :refer :all]
+            [cordula.lib.helpers :as h]
+            [cordula.lib.proxy :as proxy]
             [cordula.schema :refer :all]
             [ring.util.http-response :refer :all]
             [ring.util.http-status :as http-status]
@@ -48,7 +49,10 @@
                       :handler (fn [{body :body-params}]
                                  (let [{:keys [id] :as request}
                                        (create-request request-repository
-                                                       body)]
+                                                       (into body
+                                                             {:id (h/uuid)
+                                                              :created_at (h/now)
+                                                              :updated_at (h/now)}))]
                                    (reset handler)
                                    (created (path-for ::request {:id id})
                                             request)))}}))
@@ -72,7 +76,8 @@
                                 (if-let [request
                                          (update-request request-repository
                                                          id
-                                                         body)]
+                                                         (into body
+                                                               {:updated_at (h/now)}))]
                                   (do (reset handler)
                                       (ok request))
                                   (not-found)))}
