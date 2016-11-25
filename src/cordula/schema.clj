@@ -36,3 +36,7 @@
 
 (s/defschema NewRequest (dissoc Request :id :updated_at :created_at))
 (s/defschema UpdatedRequest NewRequest)
+
+(s/defschema Version
+  {:version s/Str
+   :build s/Str})

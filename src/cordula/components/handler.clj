@@ -8,6 +8,7 @@
             [cordula.lib.helpers :as h]
             [cordula.lib.proxy :as proxy]
             [cordula.schema :refer :all]
+            [cordula.version :refer [get-version]]
             [ring.util.http-response :refer :all]
             [ring.util.http-status :as http-status]
             [schema.core :as s]))
@@ -33,63 +34,71 @@
       :data {:info {:title "Cordula"
                     :description "HTTP request adapter"}
              :tags [{:name "api", :description "some apis"}]}}}
-    (context "/request/" []
-             :components [request-repository handler]
-             (resource
-              {:tags ["request"]
-               :get {:summary "get requests"
-                     :description "get all requests"
-                     :responses {http-status/ok {:schema [Request]}}
-                     :handler (fn [_]
-                                (ok (find-all request-repository {})))}
-               :post {:summary "add a request"
-                      :parameters {:body-params NewRequest}
-                      :description "add a new request"
-                      :responses {http-status/created {:schema Request}}
-                      :handler (fn [{body :body-params}]
-                                 (let [{:keys [id] :as request}
-                                       (create-request request-repository
-                                                       (into body
-                                                             {:id (h/uuid)
-                                                              :created_at (h/now)
-                                                              :updated_at (h/now)}))]
-                                   (reset handler)
-                                   (created (path-for ::request {:id id})
-                                            request)))}}))
-    (context "/request/:id" []
-             :path-params [id :- s/Str]
-             :components [request-repository handler]
-             (resource
-              {:tags ["request"]
-               :get {:x-name ::request
-                     :summary "gets a request"
-                     :responses {http-status/ok {:schema Request}}
-                     :handler (fn [_]
-                                (if-let [request (get-request request-repository
-                                                              id)]
-                                  (ok request)
-                                  (not-found)))}
-               :put {:summary "updates a request"
-                     :parameters {:body-params UpdatedRequest}
-                     :responses {http-status/ok {:schema Request}}
-                     :handler (fn [{body :body-params}]
-                                (if-let [request
-                                         (update-request request-repository
-                                                         id
-                                                         (into body
-                                                               {:updated_at (h/now)}))]
-                                  (do (reset handler)
-                                      (ok request))
-                                  (not-found)))}
-               :delete {:summary "deletes a request"
-                        :handler (fn [_]
-                                   (delete-request request-repository id)
-                                   (reset handler)
-                                   (no-content))}}))
-    (->> requests
-         (map dynamic-route)
-         (apply routes))
-    (undocumented (not-found (ok {:not "found"})))))
+   (context "/version" []
+            :tags ["version"]
+            (GET "/" []
+                 :return Version
+                 :summary "API version details"
+                 (ok (get-version))))
+   (context "/request/" []
+            :components [request-repository handler]
+            (resource
+             {:tags ["request"]
+              :get {:summary "get requests"
+                    :description "get all requests"
+                    :responses {http-status/ok {:schema [Request]}}
+                    :handler (fn [_]
+                               (ok (find-all request-repository {})))}
+              :post {:summary "add a request"
+                     :parameters {:body-params NewRequest}
+                     :description "add a new request"
+                     :responses {http-status/created {:schema Request}}
+                     :handler
+                     (fn [{body :body-params}]
+                       (let [{:keys [id] :as request}
+                             (create-request request-repository
+                                             (into body
+                                                   {:id (h/uuid)
+                                                    :created_at (h/now)
+                                                    :updated_at (h/now)}))]
+                         (reset handler)
+                         (created (path-for ::request {:id id})
+                                  request)))}}))
+   (context "/request/:id" []
+            :path-params [id :- s/Str]
+            :components [request-repository handler]
+            (resource
+             {:tags ["request"]
+              :get {:x-name ::request
+                    :summary "gets a request"
+                    :responses {http-status/ok {:schema Request}}
+                    :handler (fn [_]
+                               (if-let [request (get-request request-repository
+                                                             id)]
+                                 (ok request)
+                                 (not-found)))}
+              :put {:summary "updates a request"
+                    :parameters {:body-params UpdatedRequest}
+                    :responses {http-status/ok {:schema Request}}
+                    :handler
+                    (fn [{body :body-params}]
+                      (if-let [request
+                               (update-request request-repository
+                                               id
+                                               (into body
+                                                     {:updated_at (h/now)}))]
+                        (do (reset handler)
+                            (ok request))
+                        (not-found)))}
+              :delete {:summary "deletes a request"
+                       :handler (fn [_]
+                                  (delete-request request-repository id)
+                                  (reset handler)
+                                  (no-content))}}))
+   (->> requests
+        (map dynamic-route)
+        (apply routes))
+   (undocumented (not-found (ok {:not "found"})))))
 
 (defrecord Handler []
   component/Lifecycle

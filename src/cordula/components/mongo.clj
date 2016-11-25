@@ -41,4 +41,3 @@
 (defn new-mongo-db
   []
   (->MongoDB))
-
