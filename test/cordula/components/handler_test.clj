@@ -1,5 +1,5 @@
-(ns cordula.handler-test
-  (:require [cordula.handler :as sut]
+(ns cordula.components.handler-test
+  (:require [cordula.components.handler :as sut]
             [cordula.test-helpers :as th]
             [clojure.test :as t :refer [deftest is testing
                                         use-fixtures]]
@@ -19,9 +19,10 @@
                                                  :path "/request/"
                                                  :body conf})
             req-id (:id body)
+            req-created-at (:created_at body)
             req-path (str "/request/" req-id)]
         (is (= conf
-               (dissoc body :id))
+               (dissoc body :id :created_at :updated_at))
             "POST a new request configuration")
         (is (= body
                (-> (th/http-request app {:method :get
@@ -38,9 +39,11 @@
               {:keys [body]} (th/http-request app {:method :put
                                                    :path req-path
                                                    :body updated-conf})]
-          (is (= (assoc updated-conf :id req-id)
-                 (:body (th/http-request app {:method :get
-                                              :path req-path})))
+          (is (= (assoc updated-conf :id req-id :created_at req-created-at)
+                 (dissoc
+                  (:body (th/http-request app {:method :get
+                                               :path req-path}))
+                  :updated_at))
               "UPDATE request configuration"))
         (th/http-request app {:method :delete
                               :path req-path})

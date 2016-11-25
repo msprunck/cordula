@@ -30,7 +30,9 @@
    (s/optional-key :description) s/Str
    :in InboundRequest
    :proxy ProxyfiedRequest
-   (s/optional-key :response) Response})
+   (s/optional-key :response) Response
+   :updated_at s/Inst
+   :created_at s/Inst})
 
-(s/defschema NewRequest (dissoc Request :id))
+(s/defschema NewRequest (dissoc Request :id :updated_at :created_at))
 (s/defschema UpdatedRequest NewRequest)

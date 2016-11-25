@@ -7,3 +7,17 @@ services:
       dockerfile: docker/cordula/Dockerfile
     ports:
       - "3000:3000"
+    depends_on:
+      - mongodb
+  mongodb:
+    image: tutum/mongodb:3.2
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data
+    environment:
+      MONGODB_PASS: "crdl"
+      MONGODB_DATABASE: "cordula"
+volumes:
+  mongodb-data:
+    external: false

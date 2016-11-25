@@ -1,4 +1,4 @@
-(ns cordula.proxy
+(ns cordula.lib.proxy
   (:require [clojure.algo.generic.functor :refer [fmap]]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
