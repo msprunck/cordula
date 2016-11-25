@@ -1,4 +1,7 @@
+(def build-number (or (System/getenv "BUILD_NUMBER") "HANDBUILT"))
+
 (defproject cordula "0.1.0-SNAPSHOT"
+  :build-number ~build-number
   :description "Cordula - HTTP request adapter"
   :license {:name "Eclipse Public License - v 1.0"
             :url "http://www.eclipse.org/legal/epl-v10.html"
@@ -10,12 +13,13 @@
                  [org.slf4j/slf4j-api "1.7.21"]
                  [org.slf4j/slf4j-log4j12 "1.7.21"]
                  [log4j/log4j "1.2.17"]
+                 [leiningen-core "2.7.1"]
                  [com.stuartsierra/component "0.3.1"]
                  [cprop "0.1.9"]
                  [metosin/compojure-api "1.1.9"]
                  [com.novemberain/monger "3.1.0"]
                  [prismatic/schema "1.1.3"]
-                 [clj-http "3.3.0"]
+                 [clj-http "3.4.1"]
                  [http-kit "2.2.0"]
                  [reloaded.repl "0.2.3"]]
   :main ^:skip-aot cordula.server

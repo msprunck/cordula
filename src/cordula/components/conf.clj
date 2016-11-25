@@ -16,4 +16,3 @@
 (defn new-configuration
   [args]
   (->Configuration args))
-
