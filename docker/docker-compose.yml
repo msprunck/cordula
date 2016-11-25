@@ -7,6 +7,9 @@ services:
       dockerfile: docker/cordula/Dockerfile
     ports:
       - "3000:3000"
+    environment:
+      DB_URI: "mongodb://admin:crdl@mongodb:27017/cordula"
+      SERVER_PORT: 3000
     depends_on:
       - mongodb
   mongodb:
