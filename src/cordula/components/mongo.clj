@@ -30,13 +30,13 @@
           {:keys [db conn]} (mg/connect-via-uri db-uri)]
       (log/infof "Connection to MongoDB (%s)"
                  (star-password db-uri))
-      (assoc this :conn conn :db db)))
+      (assoc this :conn conn :mdb db)))
   (stop [this]
     (try
       (when-let [conn (:conn this)]
         (mg/disconnect conn))
       (catch Throwable t (log/error t "Error when stopping MongoDB component"))
-      (finally (dissoc this :conn :db)))))
+      (finally (dissoc this :conn :mdb)))))
 
 (defn new-mongo-db
   []

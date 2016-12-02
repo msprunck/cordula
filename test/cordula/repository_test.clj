@@ -1,5 +1,5 @@
-(ns cordula.components.repository-test
-  (:require [cordula.components.repository :as sut]
+(ns cordula.repository-test
+  (:require [cordula.repository :as sut]
             [clojure.test :as t :refer [deftest is testing]]))
 
 (deftest satisfy-properties-test

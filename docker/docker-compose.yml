@@ -10,6 +10,11 @@ services:
     environment:
       DB_URI: "mongodb://admin:crdl@mongodb:27017/cordula"
       SERVER_PORT: 3000
+      CLIENT_ID: 0ZE6WlsV37O07xHsBD6dUikKBtw4wvVB
+      CLIENT_SECRET: ${CLIENT_SECRET}
+      AUTHORIZATION_URL: https://cordula.auth0.com/authorize
+      SCOPE: openid
+      TOKEN_NAME: id_token
     depends_on:
       - mongodb
   mongodb:

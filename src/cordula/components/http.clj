@@ -15,7 +15,7 @@
       (assoc this :http-kit (httpkit/run-server
                              (wrap-components
                               handler-fn
-                              (select-keys this [:request-repository :handler]))
+                              (select-keys this [:db :handler]))
                              {:port server-port
                               :ip server-host}))))
   (stop [this]

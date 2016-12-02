@@ -28,16 +28,19 @@
               :or {method (keyword (get-in conf [:in :method] "get"))}}]
    (let [create-resp (th/http-request app {:method :post
                                            :body conf
-                                           :path "/request/"})
+                                           :path "/request/"
+                                           :auth-token true})
          req-id (get-in create-resp [:body :id])
          req-path (str "/" req-id path)
          response (th/http-request app {:method method
                                         :path req-path
                                         :headers headers
                                         :params params
-                                        :body body})]
+                                        :body body
+                                        :auth-token true})]
      (th/http-request app {:method :delete
-                           :path (str "/request/" req-id)})
+                           :path (str "/request/" req-id)
+                           :auth-token true})
      response)))
 
 (deftest proxy-handler-data-extraction-test
