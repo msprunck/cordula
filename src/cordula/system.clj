@@ -3,8 +3,7 @@
             [cordula.components.conf :refer [new-configuration]]
             [cordula.components.mongo :refer [new-mongo-db]]
             [cordula.components.handler :refer [new-handler]]
-            [cordula.components.http :refer [new-http-server]]
-            [cordula.components.repository :refer [new-request-repository]]))
+            [cordula.components.http :refer [new-http-server]]))
 
 (defn new-system
   [args]
@@ -13,10 +12,7 @@
    :db (component/using
         (new-mongo-db)
         [:conf])
-   :request-repository (component/using
-                        (new-request-repository)
-                        [:conf :db])
    :handler (component/using (new-handler)
-                             [:request-repository])
+                             [:db :conf])
    :http (component/using (new-http-server)
-                          [:conf :request-repository :handler])))
+                          [:conf :db :handler])))

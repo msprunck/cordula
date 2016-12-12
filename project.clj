@@ -13,6 +13,7 @@
                  [org.slf4j/slf4j-api "1.7.21"]
                  [org.slf4j/slf4j-log4j12 "1.7.21"]
                  [log4j/log4j "1.2.17"]
+                 [buddy/buddy-auth "1.3.0"]
                  [leiningen-core "2.7.1"]
                  [com.stuartsierra/component "0.3.1"]
                  [cprop "0.1.9"]
