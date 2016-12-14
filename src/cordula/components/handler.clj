@@ -3,15 +3,16 @@
             [compojure.api.exception :as ex]
             [compojure.api.routes :as routes]
             [compojure.api.sweet :refer :all]
+            [compojure.route :as croutes]
             [com.stuartsierra.component :as component]
             [cordula.repository :as r]
             [cordula.lib.dynamic-handler :refer :all]
-            [cordula.middlewares.auth :refer [wrap-authentication
-                                              authenticated-mw]]
+            [cordula.middlewares.auth :refer [wrap-authentication]]
             [cordula.routes.dynamic :refer [dynamic-routes]]
             [cordula.routes.request :refer [request-routes]]
             [cordula.schema :refer :all]
             [cordula.version :refer [get-version]]
+            [fuck-cors.core :refer [wrap-open-cors wrap-preflight]]
             [ring.util.http-response :refer :all]
             [ring.util.http-status :as http-status]
             [schema.core :as s]))
@@ -51,17 +52,16 @@
        :options {:ui {:oauth2 {:clientId client-id
                                :appName "blank"
                                :realm "blank"}}}}}
-     (context "/version" []
-              :tags ["version"]
-              (GET "/" []
-                   :return Version
-                   :summary "API version details"
-                   (ok (get-version))))
-     (context "" []
-              :middleware [authentication-mw authenticated-mw]
-              request-routes
-              (dynamic-routes request-confs))
-     (undocumented (not-found (ok {:not "found"}))))))
+     (middleware [wrap-open-cors wrap-preflight authentication-mw]
+                 (context "/version" []
+                          :tags ["version"]
+                          (GET "/" []
+                               :return Version
+                               :summary "API version details"
+                               (ok (get-version))))
+                 request-routes
+                 (dynamic-routes request-confs))
+     (undocumented (croutes/not-found (ok {:not "found"}))))))
 
 (defrecord Handler []
   component/Lifecycle

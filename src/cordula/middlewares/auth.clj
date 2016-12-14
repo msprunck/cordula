@@ -26,10 +26,10 @@
       (handler request)
       (unauthorized {:error "Not authorized"}))))
 
-(s/defn ->user :- cs/User
+(s/defn ->user :- (s/maybe cs/User)
   "Get the current user from an HTTP request"
   [request]
-  (let [{:keys [sub] :as identity} (:identity request)]
+  (when-let [{:keys [sub] :as identity} (:identity request)]
     {:id sub
      :identities [{:provider "oauth2"
                    :user_id sub

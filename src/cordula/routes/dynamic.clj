@@ -2,6 +2,7 @@
   (:require [clojure.tools.logging :as log]
             [compojure.api.sweet :refer :all]
             [cordula.lib.proxy :as proxy]
+            [cordula.middlewares.auth :refer [authenticated-mw]]
             [schema.core :as s]))
 
 (defn dynamic-route
@@ -10,8 +11,10 @@
     (log/debugf "Build dynamic route %s (%s)" request url)
     (case (:method in)
       "get" (GET url []
+                 :middleware [authenticated-mw]
                  (proxy/proxy-handler request))
       "post" (POST url []
+                   :middleware [authenticated-mw]
                    :body [body s/Any]
                    (proxy/proxy-handler request)))))
 

@@ -13,4 +13,6 @@
         :client-id
         "0ZE6WlsV37O07xHsBD6dUikKBtw4wvVB"
         :authorization-url
-        "https://cordula.auth0.com/authorize"})))
+        "https://cordula.auth0.com/authorize"
+        :scope "openid"
+        :token-name "id_token"})))

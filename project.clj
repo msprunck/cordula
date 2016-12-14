@@ -21,6 +21,7 @@
                  [com.novemberain/monger "3.1.0"]
                  [prismatic/schema "1.1.3"]
                  [clj-http "3.4.1"]
+                 [fuck-cors "0.1.6"]
                  [http-kit "2.2.0"]
                  [reloaded.repl "0.2.3"]]
   :main ^:skip-aot cordula.server
