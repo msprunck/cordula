@@ -3,7 +3,8 @@
             [cordula.repository :as r]
             [cordula.lib.dynamic-handler :refer :all]
             [cordula.lib.helpers :as h]
-            [cordula.middlewares.auth :refer [can-access?]]
+            [cordula.middlewares.auth :refer [can-access?
+                                              authenticated-mw]]
             [cordula.schema :refer :all]
             [ring.util.http-response :refer :all]
             [ring.util.http-status :as http-status]
@@ -13,6 +14,7 @@
 (defroutes request-routes
   (context "/request/" []
            :components [db handler]
+           :middleware [authenticated-mw]
            :current-user user
            (resource
             {:tags ["request"]
@@ -38,41 +40,42 @@
                         (created (path-for ::request {:id id})
                                  request)))}}))
   (context "/request/:id" []
-            :path-params [id :- s/Str]
-            :components [db handler]
-            :current-user user
-            (resource
-             {:tags ["request"]
-              :get {:x-name ::request
-                    :summary "gets a request"
-                    :responses {http-status/ok {:schema Request}}
-                    :handler (fn [_]
-                               (if-let [request (r/get-request db id)]
-                                 (if (can-access? request user)
-                                     (ok request)
-                                     (unauthorized {:error "Not authorized"}))
-                                 (not-found)))}
-              :put {:summary "updates a request"
-                    :parameters {:body-params UpdatedRequest}
-                    :responses {http-status/ok {:schema Request}}
-                    :handler
-                    (fn [{body :body-params}]
-                      (if (can-access? (r/get-request db id) user)
-                        (if-let [request
-                                 (r/update-request db
-                                                   id
-                                                   (into body
-                                                         {:updated_at (h/now)
-                                                          :owner (:id user)}))]
-                          (do (reset handler)
-                              (ok request))
-                          (not-found))
-                        (unauthorized {:error "Not authorized"})))}
-              :delete {:summary "deletes a request"
-                       :handler
-                       (fn [_]
-                         (if (can-access? (r/get-request db id) user)
-                           (do (r/delete-request db id)
-                               (reset handler)
-                               (no-content))
-                           (unauthorized {:error "Not authorized"})))}})))
+           :path-params [id :- s/Str]
+           :middleware [authenticated-mw]
+           :components [db handler]
+           :current-user user
+           (resource
+            {:tags ["request"]
+             :get {:x-name ::request
+                   :summary "gets a request"
+                   :responses {http-status/ok {:schema Request}}
+                   :handler (fn [_]
+                              (if-let [request (r/get-request db id)]
+                                (if (can-access? request user)
+                                  (ok request)
+                                  (unauthorized {:error "Not authorized"}))
+                                (not-found)))}
+             :put {:summary "updates a request"
+                   :parameters {:body-params UpdatedRequest}
+                   :responses {http-status/ok {:schema Request}}
+                   :handler
+                   (fn [{body :body-params}]
+                     (if (can-access? (r/get-request db id) user)
+                       (if-let [request
+                                (r/update-request db
+                                                  id
+                                                  (into body
+                                                        {:updated_at (h/now)
+                                                         :owner (:id user)}))]
+                         (do (reset handler)
+                             (ok request))
+                         (not-found))
+                       (unauthorized {:error "Not authorized"})))}
+             :delete {:summary "deletes a request"
+                      :handler
+                      (fn [_]
+                        (if (can-access? (r/get-request db id) user)
+                          (do (r/delete-request db id)
+                              (reset handler)
+                              (no-content))
+                          (unauthorized {:error "Not authorized"})))}})))
