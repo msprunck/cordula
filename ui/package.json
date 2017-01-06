@@ -1,0 +1,31 @@
+{
+  "name": "cordula",
+  "version": "0.0.1",
+  "description": "Cordula HTTP request adapter UI",
+  "main": "index.js",
+  "dependencies": {
+    "ace-css": "^1.1.0",
+    "auth0-lock": "^9.1",
+    "css-loader": "^0.26.1",
+    "elm-webpack-loader": "^3.1.0",
+    "file-loader": "^0.9.0",
+    "font-awesome": "^4.7.0",
+    "glob": "^7.1.1",
+    "json-loader": "^0.5.2",
+    "style-loader": "^0.13.1",
+    "transform-loader": "^0.2.2",
+    "url-loader": "^0.5.7",
+    "webpack": "^1.14.0",
+    "webpack-dev-middleware": "^1.9.0",
+    "webpack-dev-server": "^1.16.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "api": "node api.js",
+    "build": "webpack",
+    "watch": "webpack --watch",
+    "dev": "webpack-dev-server --port 3000"
+  },
+  "author": "msprunck",
+  "license": "ISC"
+}
