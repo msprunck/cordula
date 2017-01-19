@@ -1,30 +1,37 @@
-'use strict';
-
-require('ace-css/css/ace.css');
-require('font-awesome/css/font-awesome.css');
+import aceCss from 'ace-css/css/ace.css';
+import faCss from 'font-awesome/css/font-awesome.css';
 
 // Require index.html so it gets copied to dist
-require('./index.html');
+import index from './index.html';
 
-var Elm = require('./Main.elm');
-var mountNode = document.getElementById('main');
+//var Elm = require('./Main.elm');
+import Elm from './Main.elm';
 
 // Auth0 authentication
-var Auth0Lock = require('auth0-lock');
+import Auth0Lock from 'auth0-lock';
 
-var lock = new Auth0Lock('0ZE6WlsV37O07xHsBD6dUikKBtw4wvVB', 'cordula.auth0.com');
-var storedProfile = localStorage.getItem('profile');
-var storedToken = localStorage.getItem('token');
-var authData = storedProfile && storedToken ? { profile: JSON.parse(storedProfile), token: storedToken } : null;
-var elmApp = Elm.Main.embed(mountNode, authData);
+const cid = '0ZE6WlsV37O07xHsBD6dUikKBtw4wvVB';
+const domain = 'cordula.auth0.com';
+const options = {
+  allowedConnections: ['google-oauth2', 'facebook']
+};
+
+const lock = new Auth0Lock(cid, domain, options);
+const storedProfile = localStorage.getItem('profile');
+const storedToken = localStorage.getItem('token');
+const authData = storedProfile && storedToken ? { profile: JSON.parse(storedProfile), token: storedToken } : null;
+const mountNode = document.getElementById('main');
+const elmApp = Elm.Main.embed(mountNode, authData);
 elmApp.ports.auth0showLock.subscribe(function(opts) {
-  opts.connections = ['Username-Password-Authentication'];
-  lock.show(opts, function(err, profile, token) {
-    var result = { err: null, ok: null };
+  lock.show(opts);
+});
+lock.on("authenticated", function(authResult) {
+  lock.getUserInfo(authResult.accessToken, function(err, profile) {
+    const result = { err: null, ok: null };
     if (!err) {
-      result.ok = { profile: profile, token: token };
+      result.ok = { profile: profile, token: authResult.idToken };
       localStorage.setItem('profile', JSON.stringify(profile));
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', authResult.idToken);
     } else {
       result.err = err.details;
       // Ensure that optional fields are on the object
@@ -32,6 +39,7 @@ elmApp.ports.auth0showLock.subscribe(function(opts) {
       result.err.code = result.err.code ? result.err.code : null;
       result.err.statusCode = result.err.statusCode ? result.err.statusCode : null;
     }
+    console.log(result);
     elmApp.ports.auth0authResult.send(result);
   });
 });

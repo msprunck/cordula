@@ -5,7 +5,7 @@ import Dict
 type alias RequestId =
     String
 
-type HttpMethod = Get | Post
+type HttpMethod = Get | Post | Unknown
 
 type alias InboundRequest =
     { path : String
@@ -20,18 +20,24 @@ type alias Params =
 type alias ProxifiedRequest =
     { uri : String
     , method : HttpMethod
-    , formParams : Params
-    , queryParams : Params
+    , formParams : Maybe Params
+    , queryParams : Maybe Params
+    , headers : Maybe (Dict.Dict String String)
+    , body : Maybe String
+    }
+
+type alias Response =
+    { body : String
     , headers : (Dict.Dict String String)
-    , body : String
     }
 
 type alias Request =
     { id : RequestId
     , name : String
-    , description : String
+    , description : Maybe String
     , inb : InboundRequest
     , proxy : ProxifiedRequest
+    , response : Maybe Response
     , owner : String
     , updated_at : String
     , created_at : String

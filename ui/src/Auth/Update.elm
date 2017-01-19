@@ -1,7 +1,9 @@
 module Auth.Update exposing (..)
 
+import Auth.Commands exposing (..)
 import Auth.Messages exposing (Msg(..))
-import Auth.Models exposing (Model, AuthenticationResult)
+import Auth.Models exposing (Model, AuthenticationResult, AuthenticationState(..))
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -11,7 +13,7 @@ update msg model =
                 ( newState, error ) =
                     case result of
                         Ok user ->
-                            ( Auth0.LoggedIn user, Nothing )
+                            ( LoggedIn user, Nothing )
 
                         Err err ->
                             ( model.state, Just err )
@@ -19,7 +21,7 @@ update msg model =
                 ( { model | state = newState, lastError = error }, Cmd.none )
 
         ShowLogIn ->
-            ( model, model.showLock Auth0.defaultOpts )
+            ( model, showLock defaultOpts )
 
         LogOut ->
-            ( { model | state = Auth0.LoggedOut }, model.logOut () )
+            ( { model | state = LoggedOut }, logOut () )

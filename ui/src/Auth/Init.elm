@@ -1,7 +1,6 @@
 module Auth.Init exposing(..)
 
 import Auth.Models
-import Auth.Messages exposing (Msg(..))
 
 
 init : Maybe Auth.Models.LoggedInUser -> Auth.Models.Model

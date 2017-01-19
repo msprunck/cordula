@@ -1,5 +1,6 @@
 module Update exposing (..)
 
+import Auth.Update
 import Messages exposing (Msg(..))
 import Models exposing (Model)
 import Requests.Update
@@ -15,5 +16,9 @@ update msg model =
             in
                 ( { model | requests = updatedRequests }, Cmd.map RequestsMsg cmd )
         AuthenticationMsg subMsg ->
-            ( model, Cmd.none )
+            let
+                ( updatedAuthModel, cmd) =
+                    Auth.Update.update subMsg model.authModel
+            in
+                ( {model | authModel = updatedAuthModel}, Cmd.map AuthenticationMsg cmd )
 

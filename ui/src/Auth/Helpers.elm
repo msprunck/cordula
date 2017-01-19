@@ -1,7 +1,7 @@
 module Auth.Helpers exposing (..)
 
 import Auth.Messages exposing (Msg(..))
-import Auth.Models exposing (AuthenticationResult, RawAuthenticationResult)
+import Auth.Models exposing (AuthenticationResult, RawAuthenticationResult, Model, UserProfile, AuthenticationState(..))
 
 handleAuthResult : RawAuthenticationResult -> Msg
 handleAuthResult =
@@ -18,3 +18,22 @@ mapResult result =
 
         ( Nothing, Just user ) ->
             Ok user
+
+tryGetUserProfile : Model -> Maybe UserProfile
+tryGetUserProfile model =
+    case model.state of
+        LoggedIn user ->
+            Just user.profile
+
+        LoggedOut ->
+            Nothing
+
+
+isLoggedIn : Model -> Bool
+isLoggedIn model =
+    case model.state of
+        LoggedIn _ ->
+            True
+
+        LoggedOut ->
+            False

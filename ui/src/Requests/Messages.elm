@@ -1,5 +1,9 @@
 module Requests.Messages exposing (..)
 
 
+import Http
+import Requests.Models exposing (Request)
+
+
 type Msg
-    = NoOp
+    = OnFetchAll (Result Http.Error (List Request))
